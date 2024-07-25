@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>HTR2 - SERVER | {{.ErrorCode}}</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            /*max-width: 1800px;*/
+            margin: 5px auto;
+            padding: 10px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #990000;
+            /*text-align: center;*/
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #990000;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        .min-width-column {
+            min-width: 300px; /* Mindestbreite auf 150px festlegen */
+        }
+        a {
+            color: #990000;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{{.ErrorCode}} - {{.ErrorName}}</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th class="min-width-column">Error</th>
+                    <th>Error-Message</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                <tr>
+                    <td><strong>{{.ErrorName}}</strong></td>
+                    <td>{{.ErrorMSG}}</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="footer">
+            <p>HTR2 - SERVER<br />&copy; Jan Bergner</p>
+        </div>
+    </div>
+</body>
+</html>

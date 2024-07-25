@@ -4,10 +4,13 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"httpr2/apps"
 	"httpr2/middleware"
 	"httpr2/mw_auth_basic"
+	"httpr2/mw_auth_bearer"
 	"httpr2/mw_logging"
 	"httpr2/mw_session"
+	"httpr2/mw_template"
 	"log"
 	"net/http"
 )
@@ -68,23 +71,26 @@ func main() {
 
 	/* Router-Definition */
 	mainRouter := http.NewServeMux()
+	apiRouter := http.NewServeMux()
 	portalRouter := http.NewServeMux()
 	adminRouter := http.NewServeMux()
 	userRouter := http.NewServeMux()
 
 	/* Main-Router-Middleware */
-	middlewares := middleware.CreateStack(
+	mainMiddlewareStack := middleware.CreateStack(
 		mw_session.SessionMiddleware,
 		mw_logging.Logging,
 	)
 
 	/* Admin-Router-Middleware */
-	portalMiddlewareStack := middleware.CreateStack()
+	apiMiddlewareStack := middleware.CreateStack(mw_auth_bearer.BearerAuthMiddleware("auth_bearer.json"))
+	portalMiddlewareStack := middleware.CreateStack(mw_template.WriteTemplate("", "", "html-templates", http.StatusBadGateway))
 	adminMiddlewareStack := middleware.CreateStack(mw_auth_basic.BasicAuthMiddleware("auth_basic_admin.json"))
 	userMiddlewareStack := middleware.CreateStack()
 
 	/* Main-Router-Routen */
-	mainRouter.HandleFunc("/", m0)
+	mainRouter.HandleFunc("/", apps.Default405)
+	mainRouter.Handle("/api/", apiMiddlewareStack(http.StripPrefix("/api", apiRouter)))
 	mainRouter.Handle("/portal/", portalMiddlewareStack(http.StripPrefix("/portal", portalRouter)))
 	mainRouter.Handle("/admin/", adminMiddlewareStack(http.StripPrefix("/admin", adminRouter)))
 	mainRouter.Handle("/user/", userMiddlewareStack(http.StripPrefix("/user", userRouter)))
@@ -93,14 +99,14 @@ func main() {
 	/*  */
 	server := http.Server{
 		Addr:    ":" + *server_port,
-		Handler: middlewares(mainRouter),
+		Handler: mainMiddlewareStack(mainRouter),
 	}
 
 	/*  */
 	fmt.Println("Server listening on port :" + *server_port)
 	if *server_mode == "http" {
 		fmt.Println("Protocol is http (insecure)")
-		server.ListenAndServe()
+		log.Fatal(server.ListenAndServe())
 	}
 	if *server_mode == "https" {
 		fmt.Println("Protocol is https (secure)")
