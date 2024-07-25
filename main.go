@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"httpr2/app_demo"
 	"httpr2/apps"
 	"httpr2/middleware"
 	"httpr2/mw_auth_basic"
@@ -87,6 +88,7 @@ func main() {
 	portalMiddlewareStack := middleware.CreateStack(mw_template.WriteTemplate("", "", "html-templates", http.StatusBadGateway))
 	adminMiddlewareStack := middleware.CreateStack(mw_auth_basic.BasicAuthMiddleware("auth_basic_admin.json"))
 	userMiddlewareStack := middleware.CreateStack()
+	appDemoMiddlewareStack := middleware.CreateStack()
 
 	/* Main-Router-Routen */
 	mainRouter.HandleFunc("/", apps.Default405)
@@ -94,6 +96,7 @@ func main() {
 	mainRouter.Handle("/portal/", portalMiddlewareStack(http.StripPrefix("/portal", portalRouter)))
 	mainRouter.Handle("/admin/", adminMiddlewareStack(http.StripPrefix("/admin", adminRouter)))
 	mainRouter.Handle("/user/", userMiddlewareStack(http.StripPrefix("/user", userRouter)))
+	mainRouter.Handle("/demo/", appDemoMiddlewareStack(http.StripPrefix("/demo", app_demo.Main())))
 	/* Sub-Router-Routen */
 	adminRouter.HandleFunc("/dashboard", adminDashboardHandler)
 	/*  */
