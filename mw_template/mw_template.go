@@ -1,7 +1,6 @@
 package mw_template
 
 import (
-	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -38,7 +37,7 @@ func initTemplates(directory string) {
 	for _, file := range files {
 		if !file.IsDir() {
 			filePaths = append(filePaths, filepath.Join(directory, file.Name()))
-			fmt.Println("Added " + file.Name() + " to list")
+			//fmt.Println("Added " + file.Name() + " to list")
 		}
 	}
 

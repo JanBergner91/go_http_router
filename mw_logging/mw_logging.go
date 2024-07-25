@@ -11,7 +11,11 @@ func Logging(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 		sessionID := r.Context().Value(mw_session.SessionKey).(string)
-		fmt.Println("Time:" + start.String() + "|Session:" + sessionID)
+		WriteLog("Time:" + start.String() + "|Session:" + sessionID)
 		next.ServeHTTP(w, r)
 	})
+}
+
+func WriteLog(logitem string) {
+	fmt.Println(logitem)
 }
