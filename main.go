@@ -7,11 +7,10 @@ import (
 	"httpr2/app_demo"
 	"httpr2/apps"
 	"httpr2/middleware"
-	"httpr2/mw_auth_basic"
-	"httpr2/mw_auth_bearer"
 	"httpr2/mw_logging"
 	"httpr2/mw_session"
 	"httpr2/mw_template"
+	"httpr2/sys_auth"
 	"log"
 	"net/http"
 )
@@ -62,6 +61,19 @@ func RemoveSessionItem(sessionID string, keyToRemove string) {
 	}
 }
 
+func GetSessionItem(sessionID string, keyToInspect string) string {
+	if items, exists := SessionStore[sessionID]; exists {
+		for i, existingItem := range items {
+			if existingItem.Key == keyToInspect {
+				return SessionStore[sessionID][i].Value
+			}
+		}
+		return ""
+	} else {
+		return ""
+	}
+}
+
 func main() {
 	/*  */
 	server_port := flag.String("port", "8080", "Port to be used for http server")
@@ -84,9 +96,12 @@ func main() {
 	)
 
 	/* Admin-Router-Middleware */
-	apiMiddlewareStack := middleware.CreateStack(mw_auth_bearer.BearerAuthMiddleware("auth_bearer.json"))
+	apiMiddlewareStack := middleware.CreateStack(sys_auth.BearerAuthMiddleware("auth_bearer.json"))
+	//apiMiddlewareStack := middleware.CreateStack(mw_auth_bearer.BearerAuthMiddleware("auth_bearer.json"))
 	portalMiddlewareStack := middleware.CreateStack(mw_template.WriteTemplate("", "", "html-templates", http.StatusBadGateway))
-	adminMiddlewareStack := middleware.CreateStack(mw_auth_basic.BasicAuthMiddleware("auth_basic_admin.json"))
+	//portalMiddlewareStack := middleware.CreateStack(mw_template.WriteTemplate("", "", "html-templates", http.StatusBadGateway))
+	adminMiddlewareStack := middleware.CreateStack(sys_auth.BasicAuthMiddleware("auth_basic_admin.json"))
+	//adminMiddlewareStack := middleware.CreateStack(mw_auth_basic.BasicAuthMiddleware("auth_basic_admin.json"))
 	userMiddlewareStack := middleware.CreateStack()
 	appDemoMiddlewareStack := middleware.CreateStack()
 
@@ -99,6 +114,7 @@ func main() {
 	mainRouter.Handle("/demo/", appDemoMiddlewareStack(http.StripPrefix("/demo", app_demo.Main())))
 	/* Sub-Router-Routen */
 	adminRouter.HandleFunc("/dashboard", adminDashboardHandler)
+	apiRouter.HandleFunc("/", apps.Default405)
 	/*  */
 	server := http.Server{
 		Addr:    ":" + *server_port,
@@ -126,6 +142,7 @@ func adminDashboardHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func m0(w http.ResponseWriter, r *http.Request) {
+	_ = r
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte("KO"))
 }
