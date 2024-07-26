@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>HTR2 - SERVER | {{.ErrorCode}}</title>
+    <title>HTR2 - SERVER | Sessions</title>
     <link rel="icon" type="image/x-icon" href="/html-templates/favicon.ico">
     <style>
         body {
@@ -59,22 +59,27 @@
 </head>
 <body>
     <div class="container">
-        <h1>{{.ErrorCode}} - {{.ErrorName}}</h1>
+        <h1>Admin: Session-Data</h1>
+        {{ range $user, $sessions := . }}
+        <h3>{{ $user }}</h3>
         <table>
             <thead>
                 <tr>
-                    <th class="min-width-column">Error</th>
-                    <th>Error-Message</th>
+                    <th class="min-width-column">Key</th>
+                    <th>Value</th>
                 </tr>
             </thead>
             <tbody>
-                
+            {{ range $sessions }}
                 <tr>
-                    <td><strong>{{.ErrorName}}</strong></td>
-                    <td>{{.ErrorMSG}}</td>
+                    <td><strong>{{ .Key }}</strong></td>
+                    <td>{{ .Value }}</td>
                 </tr>
+            {{end}}
             </tbody>
         </table>
+        <hr />
+        {{end}}
         <div class="footer">
             <p>HTR2 - SERVER<br />&copy; Jan Bergner</p>
         </div>

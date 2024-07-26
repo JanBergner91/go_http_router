@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"httpr2/mw_session"
 	"net/http"
 	"os"
 	"strings"
@@ -34,7 +35,8 @@ func MultiAuthMiddleware(basicCredFilePath, bearerTokenFilePath, adServer, adBas
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			authHeader := r.Header.Get("Authorization")
-			if !validateAuth(authHeader, basicCredentials, bearerTokens, adServer, adBaseDN, adUserDN, adPassword) {
+			z0, _ := validateAuth(authHeader, basicCredentials, bearerTokens, adServer, adBaseDN, adUserDN, adPassword)
+			if !z0 {
 				w.Header().Set("WWW-Authenticate", `Basic realm="Please provide credentials"`)
 				http.Error(w, "Unauthorized", http.StatusUnauthorized)
 				return
@@ -86,11 +88,17 @@ func BasicAuthMiddleware(credFilePath string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			authHeader := r.Header.Get("Authorization")
-			if !validateBasicAuth(authHeader, credentials) {
-
+			z0, z1 := validateBasicAuth(authHeader, credentials)
+			if !z0 {
 				w.Header().Set("WWW-Authenticate", `Basic realm="Please provide credentials"`)
 				http.Error(w, "Unauthorized", http.StatusUnauthorized)
 				return
+			} else {
+				sessionID := r.Context().Value(mw_session.SessionKey).(string)
+				authMethod := mw_session.SessionItem{Key: "authmethod", Value: "Basic"}
+				mw_session.AddOrUpdateSessionItem(sessionID, authMethod)
+				authUser := mw_session.SessionItem{Key: "authuser", Value: z1}
+				mw_session.AddOrUpdateSessionItem(sessionID, authUser)
 			}
 			next.ServeHTTP(w, r)
 		})
@@ -148,39 +156,39 @@ func loadBearerTokens(filePath string) ([]BearerToken, error) {
 }
 
 // validateAuth überprüft, ob der Authorization-Header entweder Basic Auth, Bearer Token oder Active Directory enthält
-func validateAuth(authHeader string, basicCredentials []Credential, bearerTokens []BearerToken, adServer, adBaseDN, adUserDN, adPassword string) bool {
+func validateAuth(authHeader string, basicCredentials []Credential, bearerTokens []BearerToken, adServer, adBaseDN, adUserDN, adPassword string) (bool, string) {
 	if authHeader == "" {
-		return false
+		return false, ""
 	}
 	if strings.HasPrefix(authHeader, "Basic ") {
 		return validateBasicAuth(authHeader, basicCredentials)
 	} else if strings.HasPrefix(authHeader, "Bearer ") {
-		return validateBearerToken(authHeader, bearerTokens)
+		return validateBearerToken(authHeader, bearerTokens), ""
 	} else if strings.HasPrefix(authHeader, "AD ") {
-		return validateADAuth(authHeader, adServer, adBaseDN, adUserDN, adPassword)
+		return validateADAuth(authHeader, adServer, adBaseDN, adUserDN, adPassword), ""
 	}
-	return false
+	return false, ""
 }
 
 // validateBasicAuth überprüft, ob der Authorization-Header gültige Basic-Authentifizierungsdaten enthält
-func validateBasicAuth(authHeader string, credentials []Credential) bool {
+func validateBasicAuth(authHeader string, credentials []Credential) (bool, string) {
 	encodedCredentials := strings.TrimPrefix(authHeader, "Basic ")
 	decodedCredentials, err := base64.StdEncoding.DecodeString(encodedCredentials)
 	if err != nil {
-		return false
+		return false, ""
 	}
 	parts := strings.SplitN(string(decodedCredentials), ":", 2)
 	if len(parts) != 2 {
-		return false
+		return false, ""
 	}
 	username := parts[0]
 	password := parts[1]
 	for _, cred := range credentials {
 		if username == cred.Username && password == cred.Password {
-			return true
+			return true, cred.Username
 		}
 	}
-	return false
+	return false, ""
 }
 
 // validateBearerToken überprüft, ob der Authorization-Header ein gültiges Bearer-Token enthält

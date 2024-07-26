@@ -1,7 +1,7 @@
 package app_filebrowser
 
 import (
-	"fmt"
+	"httpr2/mw_session"
 	"httpr2/mw_template"
 	"net/http"
 	"os"
@@ -10,8 +10,9 @@ import (
 )
 
 var AppName = "app_filebrowser"
+var FilesSubfolder = "files"
 var BaseURI = "files"
-var RealBasePath = "./" + AppName + "/files"
+var RealBasePath = "./" + AppName + "/" + FilesSubfolder
 
 type FileInfo2 struct {
 	Name       string
@@ -25,19 +26,18 @@ func GeneratePaths(path, query string, directories, files []FileInfo2) PageData2
 	var newDirs = []FileInfo2{}
 	var newFiles = []FileInfo2{}
 	for _, d := range directories {
-		d.FolderPath = strings.Replace(d.FolderPath, "", "", 1)
+		d.FolderPath = strings.Replace(d.FolderPath, "\\", "/", -1)
 		d.WebPath = strings.Replace(d.WebPath, RealBasePath, BaseURI, 1)
+		d.WebPath = strings.Replace(d.WebPath, "\\", "/", -1)
 		newDirs = append(newDirs, d)
-		fmt.Println("GenPaths::", d.WebPath, d.FolderPath)
+		//fmt.Println(d)
 	}
 
 	for _, d := range files {
-		d.FolderPath = strings.Replace(d.FolderPath, "", "", 1)
+		d.FolderPath = strings.Replace(d.FolderPath, "\\", "/", -1)
 		d.WebPath = strings.Replace(d.WebPath, RealBasePath, BaseURI, 1)
 		d.WebPath = strings.Replace(d.WebPath, "\\", "/", -1)
-		fmt.Println(d)
 		newFiles = append(newFiles, d)
-		fmt.Println("GenPaths::", d.WebPath, d.FolderPath)
 	}
 
 	temp := PageData2{
@@ -47,21 +47,6 @@ func GeneratePaths(path, query string, directories, files []FileInfo2) PageData2
 		Query: query,
 	}
 	return temp
-}
-
-type FileInfo struct {
-	Name      string
-	Path      string
-	ClearPath string
-	IsDir     bool
-	Prefix    string
-}
-
-type PageData struct {
-	Path  string
-	Dirs  []FileInfo
-	Files []FileInfo
-	Query string
 }
 
 type PageData2 struct {
@@ -87,6 +72,11 @@ func filterReplace(s string) string {
 }
 
 func fileHandler(w http.ResponseWriter, r *http.Request) {
+
+	sessionID := r.Context().Value(mw_session.SessionKey).(string)
+	item := mw_session.SessionItem{Key: "fb-key", Value: "fb-value"}
+	mw_session.AddOrUpdateSessionItem(sessionID, item)
+
 	path := r.URL.Path[1:] // Remove the leading "/"
 	spath := r.URL.Query().Get("p")
 	query := r.URL.Query().Get("q")
@@ -110,12 +100,7 @@ func fileHandler(w http.ResponseWriter, r *http.Request) {
 		var dirs []FileInfo2
 		var files []FileInfo2
 
-		pageData := PageData2{
-			Path:  path,
-			Dirs:  dirs,
-			Files: files,
-			Query: query,
-		}
+		var pageData = PageData2{}
 
 		if fileInfo.IsDir() {
 
@@ -166,7 +151,6 @@ func fileHandler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			temppath = RealBasePath + "/" + path
 		}
-		fmt.Println("TempPath::" + temppath)
 		fileInfo, err := os.Stat(temppath)
 		if os.IsNotExist(err) {
 			http.NotFound(w, r)
@@ -176,15 +160,9 @@ func fileHandler(w http.ResponseWriter, r *http.Request) {
 		var dirs []FileInfo2
 		var files []FileInfo2
 
-		pageData := PageData2{
-			Path:  path,
-			Dirs:  dirs,
-			Files: files,
-			Query: query,
-		}
+		var pageData = PageData2{}
 
 		if fileInfo.IsDir() {
-			fmt.Println("IS DIR!!")
 			entries, err := os.ReadDir(temppath)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -225,7 +203,7 @@ func fileHandler(w http.ResponseWriter, r *http.Request) {
 			pageData = GeneratePaths(temppath, "", dirs, files)
 
 		} else {
-			fmt.Println("ServerFilePath::" + temppath)
+			//fmt.Println("ServerFilePath::" + temppath)
 			http.ServeFile(w, r, temppath)
 			return
 		}

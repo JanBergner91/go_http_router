@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Datei Browser</title>
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/x-icon" href="/html-templates/favicon.ico">
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -20,7 +20,7 @@
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
         h1 {
-            color: #2f8f2f;
+            color: #990000;
             text-align: center;
         }
         .form-group {
@@ -49,8 +49,8 @@
         .rightbutton {
             float: left;
             padding: 10px 20px;
-            border: 1px solid #036715FF;
-            background-color: #036715FF;
+            border: 1px solid #990000;
+            background-color: #990000;
             color: white;
             border-radius: 0 5px 5px 0;
             cursor: pointer;
@@ -58,8 +58,8 @@
         .centerbutton {
             float: left;
             padding: 10px 20px;
-            border: 1px solid #036715FF;
-            background-color: #036715FF;
+            border: 1px solid #990000;
+            background-color: #990000;
             color: white;
             border-radius: 0 0 0 0;
             cursor: pointer;
@@ -68,15 +68,15 @@
             float: left;
             padding: 10px 20px;
             width: 120px;
-            border: 1px solid #036715FF;
-            border-right: 2px solid #3b3b3b;
-            background-color: #036715FF;
+            border: 1px solid #990000;
+            border-right: 2px solid #ffffff;
+            background-color: #990000;
             color: white;
             border-radius: 5px 0 0 5px;
             cursor: pointer;
         }
         .search-container button:hover {
-            background-color: #276f27;
+            background-color: #990000;
         }
         table {
             width: 100%;
@@ -89,14 +89,14 @@
             border-bottom: 1px solid #ddd;
         }
         th {
-            background-color: #036715FF;
+            background-color: #990000;
             color: white;
         }
         tr:hover {
             background-color: #f1f1f1;
         }
         a {
-            color: #036715FF;
+            color: #990000;
             text-decoration: none;
         }
         a:hover {
@@ -115,8 +115,8 @@
         <div class="search-container">
             <form method="get" action="/files/">
                 <div class="form-group flex">
-                    <a href="https://woltlab.stadt-hilden.de"><button class="leftbutton" type="button">Zum Intranet</button></a>
-                    <a href="/"><button class="centerbutton" type="button">Start</button></a>
+                    <a href="/"><button class="leftbutton" type="button">Zur Basis</button></a>
+                    <a href="/files"><button class="centerbutton" type="button">Start</button></a>
                     <input type="hidden" name="p" value="{{.Path}}">
                     <input type="text" name="q" placeholder="Dateien suchen..." value="{{.Query}}">
                     <button class="rightbutton" type="submit">Suchen</button>
@@ -149,7 +149,7 @@
             </tbody>
         </table>
         <div class="footer">
-            <p>&copy; 2024 Stadt Hilden</p>
+            <p>HTR2 - SERVER<br />&copy; Jan Bergner</p>
         </div>
     </div>
 </body>
