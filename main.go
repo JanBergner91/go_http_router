@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"httpr2/app_demo"
+	"httpr2/app_filebrowser"
 	"httpr2/apps"
 	"httpr2/middleware"
 	"httpr2/mw_logging"
@@ -104,14 +105,16 @@ func main() {
 	//adminMiddlewareStack := middleware.CreateStack(mw_auth_basic.BasicAuthMiddleware("auth_basic_admin.json"))
 	userMiddlewareStack := middleware.CreateStack()
 	appDemoMiddlewareStack := middleware.CreateStack()
+	appFileMiddlewareStack := middleware.CreateStack()
 
 	/* Main-Router-Routen */
-	mainRouter.HandleFunc("/", apps.Default405)
+	mainRouter.HandleFunc("/", apps.Default404)
 	mainRouter.Handle("/api/", apiMiddlewareStack(http.StripPrefix("/api", apiRouter)))
 	mainRouter.Handle("/portal/", portalMiddlewareStack(http.StripPrefix("/portal", portalRouter)))
 	mainRouter.Handle("/admin/", adminMiddlewareStack(http.StripPrefix("/admin", adminRouter)))
 	mainRouter.Handle("/user/", userMiddlewareStack(http.StripPrefix("/user", userRouter)))
 	mainRouter.Handle("/demo/", appDemoMiddlewareStack(http.StripPrefix("/demo", app_demo.Main())))
+	mainRouter.Handle("/files/", appFileMiddlewareStack(http.StripPrefix("/files", app_filebrowser.Main())))
 	/* Sub-Router-Routen */
 	adminRouter.HandleFunc("/dashboard", adminDashboardHandler)
 	apiRouter.HandleFunc("/", apps.Default405)
