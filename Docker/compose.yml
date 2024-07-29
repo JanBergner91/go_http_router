@@ -1,0 +1,25 @@
+version: "3.3"
+services:
+  httpr2:
+    networks:
+      - httpr2-net
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.httpr2.rule=Host(`httpr2.example.org`)
+      - traefik.http.services.httpr2.loadbalancer.server.port=8080
+      - traefik.http.routers.httpr2.entrypoints=websecure
+      - traefik.http.routers.httpr2.tls=true
+      - traefik.http.routers.httpr2.tls.certresolver=letsencrypt
+      - traefik.protocol=http
+    #environment:
+      #- port=8080
+      #- mode=http
+      #- key=private.key
+      #- cert=public.crt
+    container_name: httpr2
+    ports:
+      - "8080:8080"
+    image: httpr2
+networks:
+  httpr2-net:
+    external: true
