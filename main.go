@@ -32,15 +32,13 @@ func DefaultRoute(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == "/" {
 		http.Redirect(w, r, DefaultAppPath, http.StatusMovedPermanently)
 	}
-	fileInfo, err := os.Stat(r.URL.Path)
+	fileInfo, err := os.Stat("./" + r.URL.Path)
 	if os.IsNotExist(err) {
-		//CreateStatusPage(Default402)
-		//apps.CreateAppResponse(404, "Not Found")
 		apps.Default404(w, r)
 		return
 	}
 	if !fileInfo.IsDir() {
-		http.ServeFile(w, r, r.URL.Path)
+		http.ServeFile(w, r, "./"+r.URL.Path)
 		return
 	} else {
 		apps.Default404(w, r)
@@ -52,7 +50,6 @@ func DefaultRoute(w http.ResponseWriter, r *http.Request) {
 func prepareExit() {
 	fmt.Println("Running exit tasks...")
 	// Hier können Sie Ihre Aufräumarbeiten ausführen
-	//fmt.Printf("SessionStore content: %+v\n", &mw_session.SessionStore)
 	SaveFile("serversessions.json", &mw_session.SessionStore)
 	SaveFile("serverlog.json", mw_logging.GetLastXitems(DefaultLogNumber))
 	fmt.Println("Exit completed.")

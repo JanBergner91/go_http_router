@@ -1,6 +1,7 @@
 package app_admin
 
 import (
+	"httpr2/apps"
 	"httpr2/mw_logging"
 	"httpr2/mw_session"
 	"httpr2/mw_template"
@@ -11,6 +12,7 @@ func Main() *http.ServeMux {
 	appRouter := http.NewServeMux()
 	appRouter.HandleFunc("/sessions", adminSessionHandler)
 	appRouter.HandleFunc("/logs", adminLogHandler)
+	appRouter.HandleFunc("/", apps.Default408)
 	return appRouter
 }
 

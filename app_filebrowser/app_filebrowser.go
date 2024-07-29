@@ -9,17 +9,12 @@ import (
 )
 
 var appID = "files"
-var root = "" + appID
+var root = "./" + appID
+var BaseURI = "files"
 
 func ConvertURI(uri string) {
 
 }
-
-// var AppName = "app_filebrowser"
-var AppName = "files"
-var FilesSubfolder = ""
-var BaseURI = "files"
-var RealBasePath = "./" + AppName //+ "/" + FilesSubfolder
 
 type FileInfo2 struct {
 	Name       string
@@ -34,7 +29,7 @@ func GeneratePaths(path, query string, directories, files []FileInfo2) PageData2
 	var newFiles = []FileInfo2{}
 	for _, d := range directories {
 		d.FolderPath = strings.Replace(d.FolderPath, "\\", "/", -1)
-		d.WebPath = strings.Replace(d.WebPath, RealBasePath, BaseURI, 1)
+		d.WebPath = strings.Replace(d.WebPath, root, BaseURI, 1)
 		d.WebPath = strings.Replace(d.WebPath, "\\", "/", -1)
 		newDirs = append(newDirs, d)
 		//fmt.Println(d)
@@ -42,7 +37,7 @@ func GeneratePaths(path, query string, directories, files []FileInfo2) PageData2
 
 	for _, d := range files {
 		d.FolderPath = strings.Replace(d.FolderPath, "\\", "/", -1)
-		d.WebPath = strings.Replace(d.WebPath, RealBasePath, BaseURI, 1)
+		d.WebPath = strings.Replace(d.WebPath, root, BaseURI, 1)
 		d.WebPath = strings.Replace(d.WebPath, "\\", "/", -1)
 		newFiles = append(newFiles, d)
 	}
