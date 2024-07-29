@@ -1,8 +1,10 @@
 package apps
 
 import (
+	"httpr2/mw_logging"
 	"httpr2/mw_template"
 	"net/http"
+	"strconv"
 )
 
 type App func(http.ResponseWriter, *http.Request)
@@ -99,6 +101,8 @@ var Default504 = CreateStatusPage("defaultErrors.html", "./html-templates", 504,
 
 func CreateStatusPage(tplname, tpldir string, statuscode int, data interface{}) App {
 	return func(next_w http.ResponseWriter, next_r *http.Request) {
+		sc := strconv.Itoa(statuscode)
+		mw_logging.AppendToLogMainFunction(next_w, next_r, sc)
 		mw_template.ProcessTemplate(next_w, tplname, tpldir, statuscode, data)
 	}
 

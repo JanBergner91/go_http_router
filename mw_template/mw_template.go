@@ -15,6 +15,7 @@ func WriteTemplate(title, description, templatedir string, status int) func(http
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			initTemplates(templatedir)
 			w.WriteHeader(status)
+			//fmt.Println("Status WriteTemplate ", status)
 			renderTemplate(w, "index.html", nil)
 		})
 	}
@@ -23,6 +24,7 @@ func WriteTemplate(title, description, templatedir string, status int) func(http
 func ProcessTemplate(w http.ResponseWriter, templatename, templatedir string, status int, data interface{}) {
 	initTemplates(templatedir)
 	w.WriteHeader(status)
+	//fmt.Println("Status ProcessTemplate ", status)
 	renderTemplate(w, templatename, data)
 }
 
@@ -37,7 +39,6 @@ func initTemplates(directory string) {
 	for _, file := range files {
 		if !file.IsDir() {
 			filePaths = append(filePaths, filepath.Join(directory, file.Name()))
-			//fmt.Println("Added " + file.Name() + " to list")
 		}
 	}
 

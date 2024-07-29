@@ -2,8 +2,6 @@ package mw_session
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -14,6 +12,9 @@ type contextKey string
 
 const SessionKey contextKey = "session_id"
 
+/* Default Session Expiration */
+var SessionDuration time.Duration = 24 * 60 * time.Minute
+
 // SessionMiddleware überprüft, ob ein Session-Cookie vorhanden ist,
 // und erstellt bei Bedarf eine neue SessionID.
 func SessionMiddleware(next http.Handler) http.Handler {
@@ -23,15 +24,15 @@ func SessionMiddleware(next http.Handler) http.Handler {
 			// Erstelle eine neue SessionID
 			sessionID := uuid.New().String()
 			// Erstelle Time to Expire
-			now := time.Now()
+			///now := time.Now()
 			// Ablaufzeit in 60 Minuten
-			expiration := now.Add(60 * time.Minute)
+			///expiration := now.Local().Add(SessionDuration)
 			// Speichere die SessionID in einem Cookie
 			http.SetCookie(w, &http.Cookie{
-				Name:    "session_id",
-				Value:   sessionID,
-				Path:    "/",
-				Expires: expiration,
+				Name:  "session_id",
+				Value: sessionID,
+				Path:  "/",
+				///Expires: expiration,
 				// Optional: Setze weitere Cookie-Attribute wie Secure, HttpOnly, etc.
 			})
 			// Setze die SessionID im Kontext des Requests
@@ -63,11 +64,11 @@ func AddOrUpdateSessionItem(sessionID string, item SessionItem) {
 	} else {
 		SessionStore[sessionID] = []SessionItem{item}
 	}
-	jsonstore, err := json.Marshal(SessionStore)
+	/*jsonstore, err := json.Marshal(SessionStore)
 	if err != nil {
 		panic("LOL")
 	}
-	fmt.Println(string(jsonstore))
+	fmt.Println(string(jsonstore))*/
 }
 
 func RemoveSessionItem(sessionID string, keyToRemove string) {
