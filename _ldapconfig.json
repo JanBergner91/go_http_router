@@ -1,0 +1,1 @@
+{"LDAPAddress":"dc.example.tld:636","BindDN":"","BindPW":"","BaseDN":"","BaseFilter":"(objectClass=person)","BaseControls":["dn","cn","mail","memberOf"]}

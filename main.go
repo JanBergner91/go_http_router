@@ -57,6 +57,8 @@ func prepareExit() {
 
 func main() {
 	/*  */
+	//app_adinfo.MakeDefault()
+	/*  */
 	server_port := flag.String("port", "8080", "Port to be used for http server")
 	server_mode := flag.String("mode", "http", "Security mode the server should run (http/https)")
 	server_tls_key := flag.String("key", "private.key", "Private key file")
